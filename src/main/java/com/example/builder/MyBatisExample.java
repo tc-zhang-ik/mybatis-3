@@ -24,8 +24,8 @@ public class MyBatisExample {
       try {
         Connection conn = session.getConnection();
         Statement stmt = conn.createStatement();
-        stmt.execute("DROP TABLE users");
-        stmt.executeUpdate("CREATE TABLE users (id INT PRIMARY KEY, name VARCHAR(50))");
+        // stmt.execute("DROP TABLE users");
+        // stmt.executeUpdate("CREATE TABLE users (id INT PRIMARY KEY, name VARCHAR(50))");
         stmt.close();
       } catch (Exception e) {
         System.out.println("表可能已存在：" + e.getMessage());
@@ -33,13 +33,6 @@ public class MyBatisExample {
 
       // 使用 Mapper
       UserMapper mapper = session.getMapper(UserMapper.class);
-
-      User user = new User();
-      user.setId(1);
-      user.setName("Alice");
-
-      mapper.insertUser(user);
-      session.commit();
 
       List<User> users = mapper.selectAll();
       for (User u : users) {

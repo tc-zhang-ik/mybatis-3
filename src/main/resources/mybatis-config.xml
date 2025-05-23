@@ -8,10 +8,10 @@
         <environment id="development">
             <transactionManager type="JDBC"/>
             <dataSource type="UNPOOLED">
-                <property name="driver" value="org.apache.derby.jdbc.EmbeddedDriver"/>
-                <property name="url" value="jdbc:derby:mydb;create=true"/>
-                <property name="username" value=""/>
-                <property name="password" value=""/>
+                <property name="driver" value="com.mysql.cj.jdbc.Driver"/>
+                <property name="url" value="jdbc:mysql://114.96.88.66:3306/mydb?useSSL=false&amp;serverTimezone=UTC&amp;characterEncoding=utf8"/>
+                <property name="username" value="root"/>
+                <property name="password" value="Welc@me1"/>
             </dataSource>
         </environment>
     </environments>
