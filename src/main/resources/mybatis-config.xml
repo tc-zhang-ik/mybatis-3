@@ -3,12 +3,55 @@
         PUBLIC "-//mybatis.org//DTD Config 3.0//EN"
         "http://mybatis.org/dtd/mybatis-3-config.dtd">
 
+
+<!--        基础配置：properties, settings-->
+<!--        类型定义：typeAliases, typeHandlers-->
+<!--        对象创建：objectFactory, objectWrapperFactory, reflectorFactory-->
+<!--        功能增强：plugins-->
+<!--        运行环境：environments, databaseIdProvider-->
+<!--        映射定义：mappers-->
 <configuration>
+    <!-- 1. properties - 属性配置 -->
+    <properties>
+        <property name="driver" value="com.mysql.cj.jdbc.Driver"/>
+    </properties>
+
+    <!-- 2. settings - 全局设置 -->
+    <settings>
+        <setting name="cacheEnabled" value="true"/>
+        <setting name="mapUnderscoreToCamelCase" value="true"/>
+    </settings>
+
+    <!-- 3. typeAliases - 类型别名 -->
+    <typeAliases>
+        <typeAlias type="com.example.model.User" alias="user"/>
+    </typeAliases>
+
+    <!-- 4. typeHandlers - 类型处理器 -->
+
+    <!-- 5. objectFactory - 对象工厂 -->
+    <objectFactory type="com.example.objectFactory.CustomObjectFactory">
+        <property name="customProperty" value="customValue"/>
+    </objectFactory>
+
+    <!-- 6. objectWrapperFactory - 对象包装工厂 -->
+
+    <!-- 7. reflectorFactory - 反射工厂 -->
+    <reflectorFactory type="com.example.reflectorFactory.CustomReflectorFactory"/>
+
+    <!-- 8. plugins - 插件 -->
+    <plugins>
+        <plugin interceptor="com.example.interceptor.MyBatisPlugin">
+            <property name="someProperty" value="someValue"/>
+        </plugin>
+    </plugins>
+
+    <!-- 9. environments - 环境配置 -->
     <environments default="development">
         <environment id="development">
             <transactionManager type="JDBC"/>
             <dataSource type="UNPOOLED">
-                <property name="driver" value="com.mysql.cj.jdbc.Driver"/>
+                <property name="driver" value="${driver}"/>
                 <property name="url" value="jdbc:mysql://114.96.88.66:3306/mydb?useSSL=false&amp;serverTimezone=UTC&amp;characterEncoding=utf8"/>
                 <property name="username" value="root"/>
                 <property name="password" value="Welc@me1"/>
@@ -16,6 +59,9 @@
         </environment>
     </environments>
 
+    <!-- 10. databaseIdProvider - 数据库厂商标识 -->
+
+    <!-- 11. mappers - 映射器配置 -->
     <mappers>
         <mapper resource="com/example/mapper/UserMapper.xml"/>
     </mappers>

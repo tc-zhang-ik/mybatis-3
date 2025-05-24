@@ -1,8 +1,11 @@
 package com.example.model;
 
+import java.util.Date;
+
 public class User {
   private int id;
   private String name;
+  private Date createTime;
 
   public int getId() {
     return id;
@@ -20,4 +23,11 @@ public class User {
     this.name = name;
   }
 
+  public void setCreateTime(Date createTime) {
+    this.createTime = createTime;
+  }
+
+  public Date getCreateTime() {
+    return createTime;
+  }
 }

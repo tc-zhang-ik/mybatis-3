@@ -107,6 +107,7 @@ public class XMLConfigBuilder extends BaseBuilder {
       throw new BuilderException("Each XMLConfigBuilder can only be used once.");
     }
     parsed = true;
+    // 解析
     parseConfiguration(parser.evalNode("/configuration"));
     return configuration;
   }
@@ -114,20 +115,34 @@ public class XMLConfigBuilder extends BaseBuilder {
   private void parseConfiguration(XNode root) {
     try {
       // issue #117 read properties first
+      // 加载<properties>节点，设置全局变量到 Configuration 的 variables 属性中
       propertiesElement(root.evalNode("properties"));
+      // 读取<settings>节点，<settings> 节点用于配置 MyBatis 的全局行为控制参数。
       Properties settings = settingsAsProperties(root.evalNode("settings"));
+      // 加载自定义VFS实现
       loadCustomVfsImpl(settings);
+      // 加载自定义日志实现（logImpl 用于指定 MyBatis 使用哪种日志实现方式）
       loadCustomLogImpl(settings);
+      // 处理<typeAliases>节点，注册到 Configuration 的 TypeAliasRegistry 的 typeAliases 中
       typeAliasesElement(root.evalNode("typeAliases"));
+      // 法解析<plugins>节点，实例化并注册插件到 Configuration 的 InterceptorChain 中
       pluginsElement(root.evalNode("plugins"));
+      // 处理<objectFactory>节点，添加到 Configuration 的 ObjectFactory 属性中
       objectFactoryElement(root.evalNode("objectFactory"));
+      // 处理<objectWrapperFactory>节点
       objectWrapperFactoryElement(root.evalNode("objectWrapperFactory"));
+      // 处理<reflectorFactory>节点
       reflectorFactoryElement(root.evalNode("reflectorFactory"));
+      // 通过settingsElement方法将解析的设置应用到Configuration对象
       settingsElement(settings);
       // read it after objectFactory and objectWrapperFactory issue #631
+      // 解析<environments>节点，配置事务管理和数据源
       environmentsElement(root.evalNode("environments"));
+      // 析<databaseIdProvider>节点
       databaseIdProviderElement(root.evalNode("databaseIdProvider"));
+      // 解析<typeHandlers>节点，注册类型处理器
       typeHandlersElement(root.evalNode("typeHandlers"));
+      // 解析<mappers>节点，加载映射器
       mappersElement(root.evalNode("mappers"));
     } catch (Exception e) {
       throw new BuilderException("Error parsing SQL Mapper Configuration. Cause: " + e, e);
@@ -175,10 +190,12 @@ public class XMLConfigBuilder extends BaseBuilder {
       return;
     }
     for (XNode child : context.getChildren()) {
+      // package 参数用于指定要扫描的包名，用于扫描指定包名下的所有类，并注册为别名。
       if ("package".equals(child.getName())) {
         String typeAliasPackage = child.getStringAttribute("name");
         configuration.getTypeAliasRegistry().registerAliases(typeAliasPackage);
       } else {
+        // 为单个类配置别名
         String alias = child.getStringAttribute("alias");
         String type = child.getStringAttribute("type");
         try {
@@ -198,11 +215,15 @@ public class XMLConfigBuilder extends BaseBuilder {
   private void pluginsElement(XNode context) throws Exception {
     if (context != null) {
       for (XNode child : context.getChildren()) {
+        // 获取拦截器的类名
         String interceptor = child.getStringAttribute("interceptor");
+        // 获取拦截器的属性
         Properties properties = child.getChildrenAsProperties();
+        // 创建拦截器实例
         Interceptor interceptorInstance = (Interceptor) resolveClass(interceptor).getDeclaredConstructor()
             .newInstance();
         interceptorInstance.setProperties(properties);
+        // 添加拦截器到 Configuration 的 拦截器列表 interceptorChain 中
         configuration.addInterceptor(interceptorInstance);
       }
     }
@@ -238,13 +259,17 @@ public class XMLConfigBuilder extends BaseBuilder {
     if (context == null) {
       return;
     }
+    // 解析 <properties> 节点，将属性存储在 Properties 对象中
     Properties defaults = context.getChildrenAsProperties();
+    // resource 属性用于引入外部属性文件
     String resource = context.getStringAttribute("resource");
+    // url 属性用于引入外部属性文件
     String url = context.getStringAttribute("url");
     if (resource != null && url != null) {
       throw new BuilderException(
           "The properties element cannot specify both a URL and a resource based property file reference.  Please specify one or the other.");
     }
+    // 将 resource 和 url 引入的属性文件，并合并到 defaults 中
     if (resource != null) {
       defaults.putAll(Resources.getResourceAsProperties(resource));
     } else if (url != null) {
@@ -254,6 +279,7 @@ public class XMLConfigBuilder extends BaseBuilder {
     if (vars != null) {
       defaults.putAll(vars);
     }
+    // 设置属性
     parser.setVariables(defaults);
     configuration.setVariables(defaults);
   }

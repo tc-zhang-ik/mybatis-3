@@ -40,6 +40,7 @@ public class TypeAliasRegistry {
   private final Map<String, Class<?>> typeAliases = new HashMap<>();
 
   public TypeAliasRegistry() {
+    // 注册 Java 基本类型的一些别名
     registerAlias("string", String.class);
 
     registerAlias("byte", Byte.class);

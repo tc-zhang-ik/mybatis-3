@@ -123,7 +123,9 @@ public class XPathParser {
   }
 
   public XPathParser(InputStream inputStream, boolean validation, Properties variables, EntityResolver entityResolver) {
+    // 初始化 validation variables entityResolver xpath 等成员变量
     commonConstructor(validation, variables, entityResolver);
+    // 使用 DocumentBuilder 解析 xml，返回 Document 对象
     this.document = createDocument(new InputSource(inputStream));
   }
 
@@ -257,6 +259,7 @@ public class XPathParser {
           // NOP
         }
       });
+      // 使用 DocumentBuilder 解析 inputSource，返回一个 Document 对象
       return builder.parse(inputSource);
     } catch (Exception e) {
       throw new BuilderException("Error creating document instance.  Cause: " + e, e);
