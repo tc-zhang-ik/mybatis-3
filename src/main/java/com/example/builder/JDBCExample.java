@@ -28,11 +28,20 @@ public class JDBCExample {
       // stmt.executeUpdate("INSERT INTO users VALUES (2, 'Bob')");
 
       // 查询数据
-      ResultSet rs = stmt.executeQuery("SELECT * FROM users");
+      ResultSet rs1 = stmt.executeQuery("SELECT * FROM users");
 
       //
-      while (rs.next()) {
-        System.out.println("ID: " + rs.getInt("id") + ", Name: " + rs.getString("name"));
+      while (rs1.next()) {
+        System.out.println("ID: " + rs1.getInt("id") + ", Name: " + rs1.getString("name"));
+      }
+
+      // 使用 prepareStatement
+      PreparedStatement preparedStatement = conn.prepareStatement("SELECT * FROM users");
+      preparedStatement.execute();
+
+      ResultSet rs2 = preparedStatement.getResultSet();
+      while (rs2.next()) {
+        System.out.println("ID: " + rs2.getInt("id") + ", Name: " + rs2.getString("name"));
       }
 
     } catch (Exception e) {

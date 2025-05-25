@@ -20,6 +20,7 @@
     <settings>
         <setting name="cacheEnabled" value="true"/>
         <setting name="mapUnderscoreToCamelCase" value="true"/>
+        <setting name="logImpl" value="LOG4J2" />
     </settings>
 
     <!-- 3. typeAliases - 类型别名 -->
@@ -64,5 +65,6 @@
     <!-- 11. mappers - 映射器配置 -->
     <mappers>
         <mapper resource="com/example/mapper/UserMapper.xml"/>
+<!--        <package name = "com.example.mapper"/>-->
     </mappers>
 </configuration>

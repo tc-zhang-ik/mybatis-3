@@ -25,6 +25,7 @@ public class MyBatisExample {
     try (SqlSession session = factory.openSession()) {
       // 建表（只做一次）
       try {
+        // 通过 DriverManager.getConnection 获取 conn
         Connection conn = session.getConnection();
         Statement stmt = conn.createStatement();
         // stmt.execute("DROP TABLE users");
@@ -34,11 +35,15 @@ public class MyBatisExample {
         log.error("表可能已存在：{}", e.getMessage());
       }
 
+      // User user1 = session.selectOne("com.example.mapper.UserMapper.selectUser", 1);
+      // log.debug("User: {} / {}/{}", user1.getId(), user1.getName(), user1.getCreateTime());
+
       // 使用 Mapper
+      // 使用 prepareStatement 查询
       UserMapper mapper = session.getMapper(UserMapper.class);
 
-      User user = mapper.selectUser(1);
-      log.debug("User: {} / {}/{}", user.getId(), user.getName(), user.getCreateTime());
+      User user2 = mapper.selectUser(1);
+      log.debug("User: {} / {}/{}", user2.getId(), user2.getName(), user2.getCreateTime());
     }
   }
 }

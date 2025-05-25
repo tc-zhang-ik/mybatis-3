@@ -71,25 +71,31 @@ public class XMLStatementBuilder extends BaseBuilder {
   public void parseStatementNode() {
     String id = context.getStringAttribute("id");
     String databaseId = context.getStringAttribute("databaseId");
-
+    // 1. 检查数据库匹配
     if (!databaseIdMatchesCurrent(id, databaseId, this.requiredDatabaseId)) {
       return;
     }
-
+    // 2. 获取节点名称和 SQL 命令类型
     String nodeName = context.getNode().getNodeName();
     SqlCommandType sqlCommandType = SqlCommandType.valueOf(nodeName.toUpperCase(Locale.ENGLISH));
     boolean isSelect = sqlCommandType == SqlCommandType.SELECT;
+    // 3. 解析缓存相关属性
+    // `flushCache`：是否在执行 SQL 前清空缓存，默认值为非查询操作时为 `true`。
     boolean flushCache = context.getBooleanAttribute("flushCache", !isSelect);
+    // `useCache`：- 是否使用二级缓存，默认值为查询操作时为 `true`。
     boolean useCache = context.getBooleanAttribute("useCache", isSelect);
+    // `resultOrdered`：- 结果集是否有序，默认值为 `false`。
     boolean resultOrdered = context.getBooleanAttribute("resultOrdered", false);
 
     // Include Fragments before parsing
+    // 4. 处理 include 标签
     XMLIncludeTransformer includeParser = new XMLIncludeTransformer(configuration, builderAssistant);
     includeParser.applyIncludes(context.getNode());
-
+    // 5. 解析参数类型
     String parameterType = context.getStringAttribute("parameterType");
     Class<?> parameterTypeClass = resolveClass(parameterType);
     ParamNameResolver paramNameResolver = null;
+    // 6. 参数名称解析
     if (parameterTypeClass == null && mapperClass != null) {
       List<Method> mapperMethods = Arrays.stream(mapperClass.getMethods())
           .filter(m -> m.getName().equals(id) && !m.isDefault() && !m.isBridge()).collect(Collectors.toList());
@@ -108,11 +114,12 @@ public class XMLStatementBuilder extends BaseBuilder {
         }
       }
     }
-
+    // 7. 获取或默认设置语言驱动，用于解析 SQL 脚本。
     String lang = context.getStringAttribute("lang");
     LanguageDriver langDriver = getLanguageDriver(lang);
 
     // Parse selectKey after includes and remove them.
+    // 8. 处理 `<selectKey>` 节点
     processSelectKeyNodes(id, parameterTypeClass, langDriver);
 
     // Parse the SQL (pre: <selectKey> and <include> were parsed and removed)
@@ -126,8 +133,9 @@ public class XMLStatementBuilder extends BaseBuilder {
           configuration.isUseGeneratedKeys() && SqlCommandType.INSERT.equals(sqlCommandType))
               ? Jdbc3KeyGenerator.INSTANCE : NoKeyGenerator.INSTANCE;
     }
-
+    // 9. - 使用语言驱动创建 `SqlSource` 对象，表示解析后的 SQL 语句。
     SqlSource sqlSource = langDriver.createSqlSource(configuration, context, parameterTypeClass, paramNameResolver);
+    // 10. 获取其他属性
     StatementType statementType = StatementType
         .valueOf(context.getStringAttribute("statementType", StatementType.PREPARED.toString()));
     Integer fetchSize = context.getIntAttribute("fetchSize");
@@ -136,6 +144,7 @@ public class XMLStatementBuilder extends BaseBuilder {
     String resultType = context.getStringAttribute("resultType");
     Class<?> resultTypeClass = resolveClass(resultType);
     String resultMap = context.getStringAttribute("resultMap");
+    // 11. 处理结果映射
     if (resultTypeClass == null && resultMap == null) {
       resultTypeClass = MapperAnnotationBuilder.getMethodReturnType(builderAssistant.getCurrentNamespace(), id);
     }
@@ -148,7 +157,7 @@ public class XMLStatementBuilder extends BaseBuilder {
     String keyColumn = context.getStringAttribute("keyColumn");
     String resultSets = context.getStringAttribute("resultSets");
     boolean dirtySelect = context.getBooleanAttribute("affectData", Boolean.FALSE);
-
+    // 12. 创建并添加 `MappedStatement`
     builderAssistant.addMappedStatement(id, sqlSource, statementType, sqlCommandType, fetchSize, timeout, parameterMap,
         parameterTypeClass, resultMap, resultTypeClass, resultSetTypeEnum, flushCache, useCache, resultOrdered,
         keyGenerator, keyProperty, keyColumn, databaseId, langDriver, resultSets, dirtySelect, paramNameResolver);

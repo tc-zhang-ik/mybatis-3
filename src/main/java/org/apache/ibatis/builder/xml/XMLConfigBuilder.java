@@ -125,7 +125,7 @@ public class XMLConfigBuilder extends BaseBuilder {
       loadCustomLogImpl(settings);
       // 处理<typeAliases>节点，注册到 Configuration 的 TypeAliasRegistry 的 typeAliases 中
       typeAliasesElement(root.evalNode("typeAliases"));
-      // 法解析<plugins>节点，实例化并注册插件到 Configuration 的 InterceptorChain 中
+      // 解析<plugins>节点，实例化并注册插件到 Configuration 的 InterceptorChain 中
       pluginsElement(root.evalNode("plugins"));
       // 处理<objectFactory>节点，添加到 Configuration 的 ObjectFactory 属性中
       objectFactoryElement(root.evalNode("objectFactory"));
@@ -136,13 +136,13 @@ public class XMLConfigBuilder extends BaseBuilder {
       // 通过settingsElement方法将解析的设置应用到Configuration对象
       settingsElement(settings);
       // read it after objectFactory and objectWrapperFactory issue #631
-      // 解析<environments>节点，配置事务管理和数据源
+      // 解析<environments>节点，配置事务管理和数据源,配置到 Configuration 的 Environment 属性中
       environmentsElement(root.evalNode("environments"));
-      // 析<databaseIdProvider>节点
+      // 解析<databaseIdProvider>节点，根据不同的数据库厂商执行不同的 SQL 语句
       databaseIdProviderElement(root.evalNode("databaseIdProvider"));
-      // 解析<typeHandlers>节点，注册类型处理器
+      // 解析<typeHandlers>节点，注册类型处理器到 Configuration 的 typeHandlerRegistry 中
       typeHandlersElement(root.evalNode("typeHandlers"));
-      // 解析<mappers>节点，加载映射器
+      // 解析<mappers>节点，注册到 Configuration 的 mapperRegistry 中
       mappersElement(root.evalNode("mappers"));
     } catch (Exception e) {
       throw new BuilderException("Error parsing SQL Mapper Configuration. Cause: " + e, e);
@@ -416,14 +416,19 @@ public class XMLConfigBuilder extends BaseBuilder {
       return;
     }
     for (XNode child : context.getChildren()) {
+      // 将 package 下的所有类加载到 knownMappers 中
       if ("package".equals(child.getName())) {
         String mapperPackage = child.getStringAttribute("name");
         configuration.addMappers(mapperPackage);
       } else {
+        // 指定 Mapper XML 的 classpath 路径，最常见方式
         String resource = child.getStringAttribute("resource");
+        // 指定 Mapper XML 的 URL 路径（通常用于外部资源）
         String url = child.getStringAttribute("url");
+        // 指定 Mapper 接口的全限定类名（如用注解或无 XML 文件）
         String mapperClass = child.getStringAttribute("class");
         if (resource != null && url == null && mapperClass == null) {
+          // 指定 mapper 文件类型
           ErrorContext.instance().resource(resource);
           try (InputStream inputStream = Resources.getResourceAsStream(resource)) {
             XMLMapperBuilder mapperParser = new XMLMapperBuilder(inputStream, configuration, resource,
@@ -431,6 +436,7 @@ public class XMLConfigBuilder extends BaseBuilder {
             mapperParser.parse();
           }
         } else if (resource == null && url != null && mapperClass == null) {
+          // mapper url 地址类型
           ErrorContext.instance().resource(url);
           try (InputStream inputStream = Resources.getUrlAsStream(url)) {
             XMLMapperBuilder mapperParser = new XMLMapperBuilder(inputStream, configuration, url,
@@ -438,6 +444,7 @@ public class XMLConfigBuilder extends BaseBuilder {
             mapperParser.parse();
           }
         } else if (resource == null && url == null && mapperClass != null) {
+          // 不使用 XML 文件、而是直接用注解编写 SQL 的 Mapper 接口
           Class<?> mapperInterface = Resources.classForName(mapperClass);
           configuration.addMapper(mapperInterface);
         } else {

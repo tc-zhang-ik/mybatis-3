@@ -734,15 +734,23 @@ public class Configuration {
 
   public Executor newExecutor(Transaction transaction, ExecutorType executorType) {
     executorType = executorType == null ? defaultExecutorType : executorType;
+    /*
+     * SIMPLE: 适合零散的SQL执行，每次都创建新Statement REUSE: 适合重复执行相似SQL的场景，避免重复编译SQL BATCH: 适合大批量数据操作，显著提升批量操作性能
+     */
     Executor executor;
+    // 批量执行器，用于批量操作
     if (ExecutorType.BATCH == executorType) {
       executor = new BatchExecutor(this, transaction);
     } else if (ExecutorType.REUSE == executorType) {
+      // 重用执行器，会重用PreparedStatement
       executor = new ReuseExecutor(this, transaction);
     } else {
+      // 普通执行器，每次执行SQL都会创建一个新的PreparedStatement
       executor = new SimpleExecutor(this, transaction);
     }
     if (cacheEnabled) {
+      // CachingExecutor是对其他执行器（SimpleExecutor、ReuseExecutor、BatchExecutor）的包装，
+      // 在原有执行器基础上增加了二级缓存的处理逻辑。
       executor = new CachingExecutor(executor);
     }
     return (Executor) interceptorChain.pluginAll(executor);

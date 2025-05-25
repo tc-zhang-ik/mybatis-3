@@ -59,9 +59,12 @@ public class SimpleExecutor extends BaseExecutor {
     Statement stmt = null;
     try {
       Configuration configuration = ms.getConfiguration();
+      // 如果配置了 interceptor，会使用动态代理拦截对 StatementHandler 的相关操作
       StatementHandler handler = configuration.newStatementHandler(wrapper, ms, parameter, rowBounds, resultHandler,
           boundSql);
+      // 子流程1：SQL查询参数的设置（替换 ${}）
       stmt = prepareStatement(handler, ms.getStatementLog());
+      // 子流程2：SQL查询操作和结果集的封装
       return handler.query(stmt, resultHandler);
     } finally {
       closeStatement(stmt);
@@ -86,8 +89,11 @@ public class SimpleExecutor extends BaseExecutor {
 
   private Statement prepareStatement(StatementHandler handler, Log statementLog) throws SQLException {
     Statement stmt;
+    // 通过 DriverManager 获取 connection
     Connection connection = getConnection(statementLog);
+    // 通过 connection 获取 statement
     stmt = handler.prepare(connection, transaction.getTimeout());
+    // 将 sql 中的 ${} 变量替换为实际的参数
     handler.parameterize(stmt);
     return stmt;
   }

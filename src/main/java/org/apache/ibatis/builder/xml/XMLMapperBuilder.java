@@ -122,12 +122,19 @@ public class XMLMapperBuilder extends BaseBuilder {
       if (namespace == null || namespace.isEmpty()) {
         throw new BuilderException("Mapper's namespace cannot be empty");
       }
+      // 设置 mapper 的 namespace
       builderAssistant.setCurrentNamespace(namespace);
+      // cache-ref 引用其他 Mapper 的缓存
       cacheRefElement(context.evalNode("cache-ref"));
+      // cache 开启二级缓存配置
       cacheElement(context.evalNode("cache"));
+      // parameterMap 输入参数类型，全类名或别名
       parameterMapElement(context.evalNodes("/mapper/parameterMap"));
+      // resultMap 结果映射
       resultMapElements(context.evalNodes("/mapper/resultMap"));
+      // 可复用 SQL 片段，配合 <include refid="..."/> 使用。
       sqlElement(context.evalNodes("/mapper/sql"));
+      // 增删改查标签
       buildStatementFromContext(context.evalNodes("select|insert|update|delete"));
     } catch (Exception e) {
       throw new BuilderException("Error parsing Mapper XML. The XML location is '" + resource + "'. Cause: " + e, e);
@@ -146,6 +153,7 @@ public class XMLMapperBuilder extends BaseBuilder {
       final XMLStatementBuilder statementParser = new XMLStatementBuilder(configuration, builderAssistant, context,
           requiredDatabaseId, mapperClass);
       try {
+        // 解析标签
         statementParser.parseStatementNode();
       } catch (IncompleteElementException e) {
         configuration.addIncompleteStatement(statementParser);
@@ -168,13 +176,21 @@ public class XMLMapperBuilder extends BaseBuilder {
 
   private void cacheElement(XNode context) {
     if (context != null) {
+      // 缓存实现类，一般使用默认 PERPETUAL 即可
       String type = context.getStringAttribute("type", "PERPETUAL");
+      // 缓存实现类 PerpetualCache.class
       Class<? extends Cache> typeClass = typeAliasRegistry.resolveAlias(type);
+      // 缓存淘汰策略：LRU、FIFO、SOFT、WEAK
       String eviction = context.getStringAttribute("eviction", "LRU");
+      // 缓存淘汰策略实现类 LruCache.class
       Class<? extends Cache> evictionClass = typeAliasRegistry.resolveAlias(eviction);
+      // 自动刷新间隔
       Long flushInterval = context.getLongAttribute("flushInterval");
+      // 最大缓存对象数量
       Integer size = context.getIntAttribute("size");
+      // 是否只读（只读时更高效，但返回的对象不可变）
       boolean readWrite = !context.getBooleanAttribute("readOnly", false);
+      // 控制缓存击穿时的并发行为
       boolean blocking = context.getBooleanAttribute("blocking", false);
       Properties props = context.getChildrenAsProperties();
       builderAssistant.useNewCache(typeClass, evictionClass, flushInterval, size, readWrite, blocking, props);
