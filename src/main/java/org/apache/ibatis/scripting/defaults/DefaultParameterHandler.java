@@ -90,26 +90,35 @@ public class DefaultParameterHandler implements ParameterHandler {
   @Override
   public void setParameters(PreparedStatement ps) {
     ErrorContext.instance().activity("setting parameters").object(mappedStatement.getParameterMap().getId());
+    // 1. 从 boundSql 获取参数映射列表
     List<ParameterMapping> parameterMappings = boundSql.getParameterMappings();
     if (parameterMappings != null) {
       ParamNameResolver paramNameResolver = mappedStatement.getParamNameResolver();
+      // 2. 遍历参数映射列表
       for (int i = 0; i < parameterMappings.size(); i++) {
         ParameterMapping parameterMapping = parameterMappings.get(i);
         if (parameterMapping.getMode() != ParameterMode.OUT) {
           Object value;
+          // 3. 获取参数的值、JdbcType、actualJdbcType 等
           String propertyName = parameterMapping.getProperty();
           JdbcType jdbcType = parameterMapping.getJdbcType();
           JdbcType actualJdbcType = jdbcType == null ? getParamJdbcType(ps, i + 1) : jdbcType;
           Type propertyGenericType = null;
           TypeHandler typeHandler = parameterMapping.getTypeHandler();
+          // 4. 获取参数值的逻辑
           if (parameterMapping.hasValue()) {
+            // 如果 `ParameterMapping` 已经包含值，则直接使用。
             value = parameterMapping.getValue();
           } else if (boundSql.hasAdditionalParameter(propertyName)) { // issue #448 ask first for additional params
+            // 如果 `BoundSql` 中已经存在该参数，则直接使用。
             value = boundSql.getAdditionalParameter(propertyName);
           } else if (parameterObject == null) {
+            // 如果参数为空，则值为 null
             value = null;
           } else {
+            // 否则，尝试从 `parameterObject` 中提取值
             Class<? extends Object> parameterClass = parameterObject.getClass();
+            // 根据参数类型从 typeHandlerRegistry 中获取类型处理器（如 Integer - > IntegerTypeHandler）
             TypeHandler paramTypeHandler = typeHandlerRegistry.getTypeHandler(parameterClass, actualJdbcType);
             if (paramTypeHandler != null) {
               value = parameterObject;
@@ -163,6 +172,7 @@ public class DefaultParameterHandler implements ParameterHandler {
             }
             typeHandler = typeHandlerRegistry.getTypeHandler(propertyGenericType, actualJdbcType, null);
           }
+          // 5. 如果没有找到对应的 TypeHandler，则尝试使用默认的 TypeHandler
           if (typeHandler == null) {
             typeHandler = typeHandlerRegistry.getTypeHandler(actualJdbcType);
           }
@@ -170,6 +180,7 @@ public class DefaultParameterHandler implements ParameterHandler {
             throw new TypeException("Could not find type handler for Java type '" + propertyGenericType.getTypeName()
                 + "' nor JDBC type '" + actualJdbcType + "'");
           }
+          // 6. 设置参数到 PreparedStatement 中
           try {
             typeHandler.setParameter(ps, i + 1, value, jdbcType);
           } catch (TypeException | SQLException e) {
