@@ -27,6 +27,7 @@ import org.apache.ibatis.reflection.property.PropertyTokenizer;
 /**
  * @author Clinton Begin
  */
+// MetaClass 是一个用于 封装类结构信息并提供高级属性访问能力 的工具类，常用于动态处理对象属性名的情况
 public class MetaClass {
 
   private final ReflectorFactory reflectorFactory;
@@ -34,6 +35,7 @@ public class MetaClass {
 
   private MetaClass(Type type, ReflectorFactory reflectorFactory) {
     this.reflectorFactory = reflectorFactory;
+    // 从类缓存中获取对应的 Reflector 对象
     this.reflector = reflectorFactory.findForClass(type);
   }
 

@@ -35,8 +35,12 @@ import org.apache.ibatis.io.Resources;
 /**
  * @author Clinton Begin
  */
+/*
+ * TypeAliasRegistry 负责将简写名称（如 "string", "jdbc", "blogMapper"）映射到对应的 Java 类（如
+ * java.lang.String、com.example.BlogMapper），用于简化 XML 和配置文件中的类型声明。
+ */
 public class TypeAliasRegistry {
-
+  // string <-> java.lang.String
   private final Map<String, Class<?>> typeAliases = new HashMap<>();
 
   public TypeAliasRegistry() {

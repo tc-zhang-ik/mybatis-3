@@ -48,8 +48,10 @@ public class DefaultObjectFactory implements ObjectFactory, Serializable {
   @SuppressWarnings("unchecked")
   @Override
   public <T> T create(Class<T> type, List<Class<?>> constructorArgTypes, List<Object> constructorArgs) {
+    // 获取接口对应的默认实现类 Map -> HashMap
     Class<?> classToCreate = resolveInterface(type);
     // we know types are assignable
+    // 通过发射创建对象
     return (T) instantiateClass(classToCreate, constructorArgTypes, constructorArgs);
   }
 

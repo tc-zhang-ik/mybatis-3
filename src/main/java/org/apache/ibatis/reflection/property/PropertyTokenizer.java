@@ -20,10 +20,16 @@ import java.util.Iterator;
 /**
  * @author Clinton Begin
  */
+// PropertyTokenizer 是 MyBatis 中用于将属性表达式（支持嵌套、数组、集合索引）逐级拆分的类，
+// 帮助像 MetaObject 等类逐层处理对象属性。
 public class PropertyTokenizer implements Iterator<PropertyTokenizer> {
+  // 属性名，不含中括号部分
   private String name;
+  // 原始名称，包括索引（如 orders[0]）
   private final String indexedName;
+  // 数组或 List 的下标（字符串）
   private String index;
+  // 剩下的属性表达式，供 next() 继续解析
   private final String children;
 
   public PropertyTokenizer(String fullname) {

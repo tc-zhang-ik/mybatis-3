@@ -51,6 +51,7 @@ public class PropertyParser {
   }
 
   public static String parse(String string, Properties variables) {
+    // 从 variables 对象中获取 ${string} 的值
     VariableTokenHandler handler = new VariableTokenHandler(variables);
     GenericTokenParser parser = new GenericTokenParser("${", "}", handler);
     return parser.parse(string);

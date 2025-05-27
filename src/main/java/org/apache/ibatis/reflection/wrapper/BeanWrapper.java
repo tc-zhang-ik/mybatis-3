@@ -31,6 +31,7 @@ import org.apache.ibatis.reflection.property.PropertyTokenizer;
 /**
  * @author Clinton Begin
  */
+// MetaClass 中封装的是 Class 元信息，ObjectWrapper 封装的则是对象元信息。
 public class BeanWrapper extends BaseWrapper {
 
   private final Object object;

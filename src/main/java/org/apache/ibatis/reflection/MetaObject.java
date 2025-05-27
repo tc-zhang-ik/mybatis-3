@@ -32,6 +32,8 @@ import org.apache.ibatis.reflection.wrapper.ObjectWrapperFactory;
 /**
  * @author Clinton Begin
  */
+// MetaObject 是 MyBatis 对反射、集合、Map、Bean 等对象的统一包装器，
+// 配合 PropertyTokenizer 支持表达式访问（如 user.address.city），并用于参数传递、结果映射等关键流程。
 public class MetaObject {
 
   private final Object originalObject;
@@ -56,6 +58,7 @@ public class MetaObject {
     } else if (object instanceof Collection) {
       this.objectWrapper = new CollectionWrapper(this, (Collection) object);
     } else {
+      // 默认使用 BeanWrapper
       this.objectWrapper = new BeanWrapper(this, object);
     }
   }

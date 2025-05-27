@@ -57,16 +57,25 @@ import org.apache.ibatis.session.Configuration;
  * @author Clinton Begin
  * @author Kazuki Shimizu
  */
+/*
+ * TypeHandlerRegistry 是一个注册中心，负责将 Java 类型和 JDBC 类型绑定到对应的 TypeHandler 上，并在运行时查找使用。
+ */
 public final class TypeHandlerRegistry {
-
+  // 每个 JDBC 类型 → 默认 TypeHandler ｜ JdbcType.INTEGER → IntegerTypeHandler
   private final Map<JdbcType, TypeHandler<?>> jdbcTypeHandlerMap = new EnumMap<>(JdbcType.class);
+  // 存储 Java 类型 + JDBC 类型 → TypeHandler
+  // register(Integer.class, JdbcType.INTEGER, IntegerTypeHandler.class) 来注册；
   private final Map<Type, Map<JdbcType, TypeHandler<?>>> typeHandlerMap = new ConcurrentHashMap<>();
+  // smartHandlers 是一个缓存，保存的是每种 TypeHandler<T> 中的 泛型参数 T 与其构造器 Constructor 的映射关系，
+  // 用于高效地通过反射实例化带泛型参数的 TypeHandler。
   private final ConcurrentHashMap<Type, Constructor<?>> smartHandlers = new ConcurrentHashMap<>();
+  // 存储 所有已注册的 TypeHandler 实例((handler.getClass(), handler))
   private final Map<Class<?>, TypeHandler<?>> allTypeHandlersMap = new HashMap<>();
-
+  // 作为 typeHandlerMap.get(type) 返回结果为 null 时的防御性空 Map，避免 NPE。
   private static final Map<JdbcType, TypeHandler<?>> NULL_TYPE_HANDLER_MAP = Collections.emptyMap();
 
   @SuppressWarnings("rawtypes")
+  // 默认用于枚举类型的处理器类（默认是 EnumTypeHandler.class）
   private Class<? extends TypeHandler> defaultEnumTypeHandler = EnumTypeHandler.class;
 
   /**
@@ -241,13 +250,16 @@ public final class TypeHandlerRegistry {
   }
 
   public TypeHandler<?> getTypeHandler(Type type, JdbcType jdbcType) {
+    // 如果类型是ParamMap类，则不支持处理，返回null
     if (ParamMap.class.equals(type)) {
       return null;
     } else if (type == null) {
+      // 如果类型为null，则尝试根据JDBC类型获取通用的类型处理器(查询jdbcTypeHandlerMap)
       return getTypeHandler(jdbcType);
     }
 
     TypeHandler<?> handler = null;
+    // 获取与指定类型关联的JDBC类型处理器映射
     Map<JdbcType, TypeHandler<?>> jdbcHandlerMap = getJdbcHandlerMap(type);
 
     if (Object.class.equals(type)) {
@@ -256,14 +268,16 @@ public final class TypeHandlerRegistry {
       }
       return handler;
     }
-
+    // 如果映射不为null，尝试获取与JDBC类型关联的处理器
     if (jdbcHandlerMap != null) {
       handler = jdbcHandlerMap.get(jdbcType);
       if (handler == null) {
+        // 如果与JDBC类型关联的处理器不存在，则尝试获取映射中与null键关联的处理器
         handler = jdbcHandlerMap.get(null);
       }
       if (handler == null) {
         // #591
+        // 如果仍然没有找到处理器，则尝试选择映射中的唯一处理器
         handler = pickSoleHandler(jdbcHandlerMap);
       }
     }
@@ -402,7 +416,7 @@ public final class TypeHandlerRegistry {
       if (javaType == null) {
         continue;
       }
-
+      // 建立 JavaType <-> （JdbcType，TypeHandler) 之间的映射
       typeHandlerMap.compute(javaType, (k, v) -> {
         Map<JdbcType, TypeHandler<?>> map = (v == null || v == NULL_TYPE_HANDLER_MAP ? new HashMap<>() : v);
         for (JdbcType jdbcType : mappedJdbcTypes) {
@@ -410,7 +424,7 @@ public final class TypeHandlerRegistry {
         }
         return map;
       });
-
+      // 如果当前 Java 类型是参数化类型（如 List<String>），则还需要为其原始类型注册处理器
       if (javaType instanceof ParameterizedType) {
         // MEMO: add annotation to skip this?
         Type rawType = ((ParameterizedType) javaType).getRawType();
@@ -424,7 +438,7 @@ public final class TypeHandlerRegistry {
         });
       }
     }
-
+    // 将该类型处理器注册到全局处理器映射表中
     allTypeHandlersMap.put(handler.getClass(), handler);
   }
 

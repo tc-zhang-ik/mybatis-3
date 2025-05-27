@@ -45,11 +45,15 @@ import org.xml.sax.SAXParseException;
  * @author Kazuki Shimizu
  */
 public class XPathParser {
-
+  // Document 对象
   private final Document document;
+  // 是否开启验证
   private boolean validation;
+  // XMLMapperEntityResolver 使用本地 DTD 文件进行 xml 校验
   private EntityResolver entityResolver;
+  // mybatis-config.xml中 <properties> 标签中的属性
   private Properties variables;
+  // XPath 对象
   private XPath xpath;
 
   public XPathParser(String xml) {
@@ -144,6 +148,7 @@ public class XPathParser {
 
   public String evalString(Object root, String expression) {
     String result = (String) evaluate(expression, root, XPathConstants.STRING);
+    // 从 variables（mybatis-config.xml的 <properties>） 中获取 ${result} 的值
     return PropertyParser.parse(result, variables);
   }
 
@@ -232,11 +237,14 @@ public class XPathParser {
     // important: this must only be called AFTER common constructor
     try {
       DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+      // 确保了 XML 文件（如 mybatis-config.xml 和 mapper.xml）不会触发任何危险的实体处理。
       factory.setFeature(XMLConstants.FEATURE_SECURE_PROCESSING, true);
       factory.setValidating(validation);
-
+      // 是否支持命名空间
       factory.setNamespaceAware(false);
+      // 是否忽略注释
       factory.setIgnoringComments(true);
+      // 是否忽略空白
       factory.setIgnoringElementContentWhitespace(false);
       factory.setCoalescing(false);
       factory.setExpandEntityReferences(false);

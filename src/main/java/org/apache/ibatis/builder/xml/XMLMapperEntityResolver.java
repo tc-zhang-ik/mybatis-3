@@ -55,6 +55,7 @@ public class XMLMapperEntityResolver implements EntityResolver {
    */
   @Override
   public InputSource resolveEntity(String publicId, String systemId) throws SAXException {
+    // 使用本地 DTD 文件进行解析
     try {
       if (systemId != null) {
         String lowerCaseSystemId = systemId.toLowerCase(Locale.ENGLISH);

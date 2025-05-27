@@ -51,40 +51,58 @@ import org.apache.ibatis.reflection.property.PropertyNamer;
  *
  * @author Clinton Begin
  */
+// 对某个类的反射元信息（getter、setter、字段、构造器）的缓存封装。
 public class Reflector {
 
   private static final MethodHandle isRecordMethodHandle = getIsRecordMethodHandle();
+  // 对象对应的Class类
   private final Type type;
   private final Class<?> clazz;
+  // 可读属性的名称集合，可读属性就是存在相应 getter 方法的属性，初始值为空数纽
   private final String[] readablePropertyNames;
+  // 可写属性的名称集合，可写属性就是存在相应 setter 方法的属性，初始值为空数纽
   private final String[] writablePropertyNames;
+  // 记录了属性相应 setter 方法， key 是属性名称， value 是 Invoker 对象，它是对 setter 方法对应 Method 对象的封装
   private final Map<String, Invoker> setMethods = new HashMap<>();
+  // 记录了属性相应 getter 方法， key 是属性名称， value 是 Invoker 对象，它是对 getter 方法对应 Method 对象的封装
   private final Map<String, Invoker> getMethods = new HashMap<>();
+  // 记录了属性相应的 setter 方法的参数值类型， key 是属性名称， value 是 setter 方法的参数类型
   private final Map<String, Entry<Type, Class<?>>> setTypes = new HashMap<>();
+  // 记录了属性相应的 getter 方法的返回值类型， key 是属性名称， value 是 getter 方法的返回位类型
   private final Map<String, Entry<Type, Class<?>>> getTypes = new HashMap<>();
+  // 默认构造方法
   private Constructor<?> defaultConstructor;
-
+  // 所有属性名称的集合，记录到这个集合中的属性名称都是大写的。
   private final Map<String, String> caseInsensitivePropertyMap = new HashMap<>();
 
   private static final Entry<Type, Class<?>> nullEntry = new AbstractMap.SimpleImmutableEntry<>(null, null);
 
   public Reflector(Type type) {
     this.type = type;
+    // ParameterizedType 表示带泛型参数的类型
     if (type instanceof ParameterizedType) {
       this.clazz = (Class<?>) ((ParameterizedType) type).getRawType();
     } else {
       this.clazz = (Class<?>) type;
     }
+    // 获取默认构造方法
     addDefaultConstructor(clazz);
+    // 获取所有方法 Method
     Method[] classMethods = getClassMethods(clazz);
     if (isRecord(clazz)) {
+      // 如果是 Record 类型，添加 getMethods
       addRecordGetMethods(classMethods);
     } else {
+      // 添加 getMethods
       addGetMethods(classMethods);
+      // 添加 setMethods
       addSetMethods(classMethods);
+      // 添加 setFields 和 getFields
       addFields(clazz);
     }
+    // 可读属性名称集合
     readablePropertyNames = getMethods.keySet().toArray(new String[0]);
+    // 可写属性名称集合
     writablePropertyNames = setMethods.keySet().toArray(new String[0]);
     for (String propName : readablePropertyNames) {
       caseInsensitivePropertyMap.put(propName.toUpperCase(Locale.ENGLISH), propName);
