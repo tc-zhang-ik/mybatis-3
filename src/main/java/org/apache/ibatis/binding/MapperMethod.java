@@ -83,6 +83,7 @@ public class MapperMethod {
         } else if (method.returnsCursor()) {
           result = executeForCursor(sqlSession, args);
         } else {
+          // 把 Java 方法参数变成 MyBatis 可绑定的参数
           Object param = method.convertArgsToSqlCommandParam(args);
           result = sqlSession.selectOne(command.getName(), param);
           if (method.returnsOptional() && (result == null || !method.getReturnType().equals(result.getClass()))) {
@@ -269,11 +270,15 @@ public class MapperMethod {
   }
 
   public static class MethodSignature {
-
+    // 判断是否返回集合
     private final boolean returnsMany;
+    // 是否返回 Map
     private final boolean returnsMap;
+    // 是否返回 void
     private final boolean returnsVoid;
+    // 是否返回了 MyBatis 的游标类型：
     private final boolean returnsCursor;
+    // 是否返回了 Java 8 的 Optional<T> 类型。
     private final boolean returnsOptional;
     private final Class<?> returnType;
     private final String mapKey;
