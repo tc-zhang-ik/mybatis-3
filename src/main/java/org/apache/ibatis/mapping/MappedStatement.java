@@ -32,23 +32,33 @@ import org.apache.ibatis.session.Configuration;
 /**
  * @author Clinton Begin
  */
+// 每个 SQL 映射都会被 MyBatis 解析成一个 MappedStatement，
+// 然后存储在 Configuration 的 mappedStatements 映射中，用于后续执行 SQL 操作。
 public final class MappedStatement {
-
+  // com/example/mapper/UserMapper.xml
   private String resource;
   private Configuration configuration;
+  // "selectUser"
   private String id;
+  // 执行优化配置
   private Integer fetchSize;
   private Integer timeout;
+  // 一般是 PREPARED
   private StatementType statementType;
   private ResultSetType resultSetType;
+  // SqlSource 封装的 SQL 动态语法
   private SqlSource sqlSource;
   private Cache cache;
+  // 入参映射（如 #{id}）
   private ParameterMap parameterMap;
+  // 结果映射规则（User 类型）
   private List<ResultMap> resultMaps;
   private boolean flushCacheRequired;
   private boolean useCache;
   private boolean resultOrdered;
+  // SqlCommandType.SELECT
   private SqlCommandType sqlCommandType;
+  // 主键生成策略（insert 时用）
   private KeyGenerator keyGenerator;
   private String[] keyProperties;
   private String[] keyColumns;

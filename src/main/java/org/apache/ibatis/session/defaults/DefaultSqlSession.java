@@ -71,6 +71,8 @@ public class DefaultSqlSession implements SqlSession {
   @Override
   public <T> T selectOne(String statement, Object parameter) {
     // Popular vote was to return null on 0 results and throw exception on too many.
+    // statement -- com.example.mapper.UserMapper.selectUser
+    // parameter -- [1]
     List<T> list = this.selectList(statement, parameter);
     if (list.size() == 1) {
       return list.get(0);

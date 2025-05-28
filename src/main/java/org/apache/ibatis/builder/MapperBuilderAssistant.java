@@ -210,7 +210,7 @@ public class MapperBuilderAssistant extends BaseBuilder {
     }
 
     id = applyCurrentNamespace(id, false);
-
+    // 创建 MappedStatementBuilder
     MappedStatement.Builder statementBuilder = new MappedStatement.Builder(configuration, id, sqlSource, sqlCommandType)
         .resource(resource).fetchSize(fetchSize).timeout(timeout).statementType(statementType)
         .keyGenerator(keyGenerator).keyProperty(keyProperty).keyColumn(keyColumn).databaseId(databaseId).lang(lang)
@@ -218,7 +218,7 @@ public class MapperBuilderAssistant extends BaseBuilder {
         .resultMaps(getStatementResultMaps(resultMap, resultType, id)).resultSetType(resultSetType)
         .flushCacheRequired(flushCache).useCache(useCache).cache(currentCache).dirtySelect(dirtySelect)
         .paramNameResolver(paramNameResolver);
-
+    // 创建 ParameterMap，内部封装了 statementId 、 parameterType 、parameterMappings
     ParameterMap statementParameterMap = getStatementParameterMap(parameterMap, parameterType, id);
     if (statementParameterMap != null) {
       statementBuilder.parameterMap(statementParameterMap);

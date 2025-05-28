@@ -19,7 +19,7 @@ public class MyBatisExample {
   public static void main(String[] args) throws Exception {
     // 加载 MyBatis 配置，根据 mybatis-config.xml 去 classpath 下查找对应的文件并转为 InputStreamReader
     Reader reader = Resources.getResourceAsReader("mybatis-config.xml");
-    // DefaultSqlSessionFactory
+    // 解析 xml 配置文件，映射为 Configuration 对象
     SqlSessionFactory factory = new SqlSessionFactoryBuilder().build(reader);
 
     try (SqlSession session = factory.openSession()) {
@@ -40,6 +40,7 @@ public class MyBatisExample {
 
       // 使用 Mapper
       // 使用 prepareStatement 查询
+      // 通过动态代理，创建 UserMapper 的代理对象 MapperProxy
       UserMapper mapper = session.getMapper(UserMapper.class);
 
       User user2 = mapper.selectUser(1);

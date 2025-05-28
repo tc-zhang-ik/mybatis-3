@@ -74,6 +74,7 @@ public class XMLStatementBuilder extends BaseBuilder {
   }
 
   public void parseStatementNode() {
+    // context -> <SELECT>等标签
     String id = context.getStringAttribute("id");
     String databaseId = context.getStringAttribute("databaseId");
     // 1. 检查数据库匹配
@@ -146,11 +147,13 @@ public class XMLStatementBuilder extends BaseBuilder {
     Integer fetchSize = context.getIntAttribute("fetchSize");
     Integer timeout = context.getIntAttribute("timeout");
     String parameterMap = context.getStringAttribute("parameterMap");
+    // resultType="user"
     String resultType = context.getStringAttribute("resultType");
     Class<?> resultTypeClass = resolveClass(resultType);
     String resultMap = context.getStringAttribute("resultMap");
     // 11. 处理结果映射
     if (resultTypeClass == null && resultMap == null) {
+      // 如果在标签中没有指定 resultType 的话，根据 id（insertUser）找到对应的方法的返回值，作为返回值类型
       resultTypeClass = MapperAnnotationBuilder.getMethodReturnType(builderAssistant.getCurrentNamespace(), id);
     }
     String resultSetType = context.getStringAttribute("resultSetType");
@@ -162,7 +165,7 @@ public class XMLStatementBuilder extends BaseBuilder {
     String keyColumn = context.getStringAttribute("keyColumn");
     String resultSets = context.getStringAttribute("resultSets");
     boolean dirtySelect = context.getBooleanAttribute("affectData", Boolean.FALSE);
-    // 12. 创建并添加 `MappedStatement`
+    // 12. 创建并添加 `MappedStatement` 到 Configuration 中
     builderAssistant.addMappedStatement(id, sqlSource, statementType, sqlCommandType, fetchSize, timeout, parameterMap,
         parameterTypeClass, resultMap, resultTypeClass, resultSetTypeEnum, flushCache, useCache, resultOrdered,
         keyGenerator, keyProperty, keyColumn, databaseId, langDriver, resultSets, dirtySelect, paramNameResolver);
