@@ -54,8 +54,11 @@ import org.apache.ibatis.type.JdbcType;
 public class XMLConfigBuilder extends BaseBuilder {
 
   private boolean parsed;
+  // xml 解析器
   private final XPathParser parser;
+  // <environments default="development">
   private String environment;
+  // 解析setting属性的适合，判断Configuration类是否包含对应的set方法
   private final ReflectorFactory localReflectorFactory = new DefaultReflectorFactory();
 
   public XMLConfigBuilder(Reader reader) {
@@ -94,6 +97,7 @@ public class XMLConfigBuilder extends BaseBuilder {
 
   private XMLConfigBuilder(Class<? extends Configuration> configClass, XPathParser parser, String environment,
       Properties props) {
+    // 通过反射创建 Configuration 对象
     super(newConfig(configClass));
     ErrorContext.instance().resource("SQL Mapper Configuration");
     this.configuration.setVariables(props);
@@ -433,6 +437,7 @@ public class XMLConfigBuilder extends BaseBuilder {
           try (InputStream inputStream = Resources.getResourceAsStream(resource)) {
             XMLMapperBuilder mapperParser = new XMLMapperBuilder(inputStream, configuration, resource,
                 configuration.getSqlFragments());
+            // 解析 mapper.xml
             mapperParser.parse();
           }
         } else if (resource == null && url != null && mapperClass == null) {

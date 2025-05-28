@@ -102,9 +102,13 @@ public class XMLMapperBuilder extends BaseBuilder {
   }
 
   public void parse() {
+    // 如果 xxxMapper.xml 有没有被加载过
     if (!configuration.isResourceLoaded(resource)) {
+      // 解析 Mapper文件中的SQL标签
       configurationElement(parser.evalNode("/mapper"));
+      // 添加Mapper.xml到loadedResources
       configuration.addLoadedResource(resource);
+      // 注册 Mapper 到 MapperRegistry
       bindMapperForNamespace();
     }
     configuration.parsePendingResultMaps(false);
@@ -118,6 +122,7 @@ public class XMLMapperBuilder extends BaseBuilder {
 
   private void configurationElement(XNode context) {
     try {
+      // <mapper namespace="com.example.mapper.UserMapper">
       String namespace = context.getStringAttribute("namespace");
       if (namespace == null || namespace.isEmpty()) {
         throw new BuilderException("Mapper's namespace cannot be empty");

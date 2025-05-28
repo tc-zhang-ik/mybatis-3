@@ -101,15 +101,17 @@ import org.apache.ibatis.type.TypeHandlerRegistry;
  * @author Clinton Begin
  */
 public class Configuration {
-
+  // <environments>
   protected Environment environment;
 
   protected boolean safeRowBoundsEnabled;
   protected boolean safeResultHandlerEnabled = true;
   protected boolean mapUnderscoreToCamelCase;
+  // <settings> 中的 aggressiveLazyLoading
   protected boolean aggressiveLazyLoading;
   protected boolean useGeneratedKeys;
   protected boolean useColumnLabel = true;
+  // <settings> 中的 cacheEnabled
   protected boolean cacheEnabled = true;
   protected boolean callSettersOnNulls;
   protected boolean useActualParamName = true;
@@ -119,9 +121,11 @@ public class Configuration {
   protected boolean argNameBasedConstructorAutoMapping;
 
   protected String logPrefix;
+  // <settings> 中的 logImpl
   protected Class<? extends Log> logImpl;
   protected Class<? extends VFS> vfsImpl;
   protected Class<?> defaultSqlProviderType;
+  // <settings> 中的 localCacheScope
   protected LocalCacheScope localCacheScope = LocalCacheScope.SESSION;
   protected JdbcType jdbcTypeForNull = JdbcType.OTHER;
   protected Set<String> lazyLoadTriggerMethods = new HashSet<>(
@@ -129,18 +133,22 @@ public class Configuration {
   protected Integer defaultStatementTimeout;
   protected Integer defaultFetchSize;
   protected ResultSetType defaultResultSetType;
+  // <settings> 中的 defaultExecutorType,执行器类型：SIMPLE、REUSE、BATCH
   protected ExecutorType defaultExecutorType = ExecutorType.SIMPLE;
   protected AutoMappingBehavior autoMappingBehavior = AutoMappingBehavior.PARTIAL;
   protected AutoMappingUnknownColumnBehavior autoMappingUnknownColumnBehavior = AutoMappingUnknownColumnBehavior.NONE;
 
   protected Properties variables = new Properties();
+  // <reflectorFactory>
   protected ReflectorFactory reflectorFactory = new DefaultReflectorFactory();
+  // <objectFactory>
   protected ObjectFactory objectFactory = new DefaultObjectFactory();
+  // <objectWrapperFactory>
   protected ObjectWrapperFactory objectWrapperFactory = new DefaultObjectWrapperFactory();
-
+  // <settings> 中的 lazyLoadingEnabled
   protected boolean lazyLoadingEnabled;
   protected ProxyFactory proxyFactory = new JavassistProxyFactory(); // #224 Using internal Javassist instead of OGNL
-
+  // <databaseIdProvider>
   protected String databaseId;
   /**
    * Configuration factory class. Used to create Configuration for loading deserialized unread properties.
@@ -150,21 +158,28 @@ public class Configuration {
   protected Class<?> configurationFactory;
 
   protected final MapperRegistry mapperRegistry = new MapperRegistry(this);
+  // <plugins>
   protected final InterceptorChain interceptorChain = new InterceptorChain();
+  // <typeHandlers>
   protected final TypeHandlerRegistry typeHandlerRegistry = new TypeHandlerRegistry(this);
+  // <typeAliases>
   protected final TypeAliasRegistry typeAliasRegistry = new TypeAliasRegistry();
+  // <languages>
   protected final LanguageDriverRegistry languageRegistry = new LanguageDriverRegistry();
-
+  // <mapper> 中的 <select>, <insert> 等
   protected final Map<String, MappedStatement> mappedStatements = new StrictMap<MappedStatement>(
       "Mapped Statements collection")
           .conflictMessageProducer((savedValue, targetValue) -> ". please check " + savedValue.getResource() + " and "
               + targetValue.getResource());
   protected final Map<String, Cache> caches = new StrictMap<>("Caches collection");
+  // <resultMap>
   protected final Map<String, ResultMap> resultMaps = new StrictMap<>("Result Maps collection");
+  // <parameterMap>（已废弃）
   protected final Map<String, ParameterMap> parameterMaps = new StrictMap<>("Parameter Maps collection");
   protected final Map<String, KeyGenerator> keyGenerators = new StrictMap<>("Key Generators collection");
 
   protected final Set<String> loadedResources = new HashSet<>();
+  // <sql>
   protected final Map<String, XNode> sqlFragments = new StrictMap<>("XML fragments parsed from previous mappers");
   protected final Collection<XMLStatementBuilder> incompleteStatements = new LinkedList<>();
   protected final Collection<CacheRefResolver> incompleteCacheRefs = new LinkedList<>();

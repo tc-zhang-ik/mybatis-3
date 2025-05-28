@@ -43,9 +43,14 @@ import org.apache.ibatis.session.Configuration;
 /**
  * @author Clinton Begin
  */
+// MyBatis 解析 XML Mapper 文件时，找到 <select> / <insert> 等标签
+// 对每个 SQL 标签，创建一个 XMLStatementBuilder
+// 调用其 parseStatementNode() 方法进行解析
+// 构建出一个 MappedStatement 并加入 Configuration 的 mappedStatements Map 中，键名为：namespace.id
 public class XMLStatementBuilder extends BaseBuilder {
 
   private final MapperBuilderAssistant builderAssistant;
+  // <SELECT>等标签
   private final XNode context;
   private final String requiredDatabaseId;
   private final Class<?> mapperClass;

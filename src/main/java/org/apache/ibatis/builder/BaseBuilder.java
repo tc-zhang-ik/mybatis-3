@@ -33,8 +33,11 @@ import org.apache.ibatis.type.TypeHandlerRegistry;
  * @author Clinton Begin
  */
 public abstract class BaseBuilder {
+  // MyBatis的配置类，mybatis-config.xml的映射对象
   protected final Configuration configuration;
+  // 类型别名注册器
   protected final TypeAliasRegistry typeAliasRegistry;
+  // 类型处理器注册器
   protected final TypeHandlerRegistry typeHandlerRegistry;
 
   public BaseBuilder(Configuration configuration) {
