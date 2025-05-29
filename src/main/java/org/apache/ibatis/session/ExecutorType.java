@@ -19,11 +19,11 @@ package org.apache.ibatis.session;
  * @author Clinton Begin
  */
 public enum ExecutorType {
-
+  // 默认模式，每次执行语句都会创建新的 PreparedStatement，不做缓存
   SIMPLE,
-
+  // 会复用 PreparedStatement，只要 SQL 相同就重用，适合执行多次相同 SQL 的场景
   REUSE,
-
+  // 批处理模式，会把多次执行合并为一批操作，在最后统一执行（如批量 INSERT、UPDATE）
   BATCH
 
 }

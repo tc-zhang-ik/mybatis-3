@@ -19,5 +19,8 @@ package org.apache.ibatis.session;
  * @author Eduardo Macarron
  */
 public enum LocalCacheScope {
+  // LocalCacheScope 是 MyBatis 中用于控制 一级缓存（也叫本地缓存）作用范围 的一个配置项。
+  // SESSION - 一级缓存作用于整个 SqlSession，多次查询相同数据会命中缓存
+  // STATEMENT - 每次查询都不使用缓存，相当于查询后就清理缓存，更严格、更实时
   SESSION, STATEMENT
 }

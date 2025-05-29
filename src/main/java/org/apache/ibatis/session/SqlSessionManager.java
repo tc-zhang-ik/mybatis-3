@@ -31,6 +31,10 @@ import org.apache.ibatis.reflection.ExceptionUtil;
 
 /**
  * @author Larry Meadors
+ *         <p>
+ *         </p>
+ *         与非线程安全的 DefaultSqlSession 不同， SqlSessionManager 使用 ThreadLocal 变量为每个线程维护一个独立的 SqlSession，确保线程安全，特别适合多线程环境（如
+ *         Web 应用）中的会话管理。
  */
 public class SqlSessionManager implements SqlSessionFactory, SqlSession {
 

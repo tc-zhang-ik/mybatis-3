@@ -26,7 +26,7 @@ import org.apache.ibatis.session.ResultHandler;
  * @author Clinton Begin
  */
 public class DefaultResultHandler implements ResultHandler<Object> {
-
+  // 默认结果处理器，将结果集全部缓存为 List
   private final List<Object> list;
 
   public DefaultResultHandler() {

@@ -51,12 +51,14 @@ import org.apache.ibatis.type.TypeHandlerRegistry;
 public abstract class BaseExecutor implements Executor {
 
   private static final Log log = LogFactory.getLog(BaseExecutor.class);
-
+  // 事务对象 JdbcTransaction
   protected Transaction transaction;
   protected Executor wrapper;
 
   protected ConcurrentLinkedQueue<DeferredLoad> deferredLoads;
+  // 以 CacheKey 作为 key，以查询结果作为 value
   protected PerpetualCache localCache;
+  // 以 CacheKey 作为 key，以参数对象作为 value
   protected PerpetualCache localOutputParameterCache;
   protected Configuration configuration;
 
@@ -88,6 +90,7 @@ public abstract class BaseExecutor implements Executor {
         rollback(forceRollback);
       } finally {
         if (transaction != null) {
+          // 关闭 connection
           transaction.close();
         }
       }
@@ -114,6 +117,7 @@ public abstract class BaseExecutor implements Executor {
     if (closed) {
       throw new ExecutorException("Executor was closed.");
     }
+    // 清除一级缓存
     clearLocalCache();
     return doUpdate(ms, parameter);
   }
@@ -123,6 +127,7 @@ public abstract class BaseExecutor implements Executor {
     return flushStatements(false);
   }
 
+  // 用于刷新和执行所有待处理的语句
   public List<BatchResult> flushStatements(boolean isRollBack) throws SQLException {
     if (closed) {
       throw new ExecutorException("Executor was closed.");
@@ -155,6 +160,7 @@ public abstract class BaseExecutor implements Executor {
       // localCache 是一级缓存
       list = resultHandler == null ? (List<E>) localCache.getObject(key) : null;
       if (list != null) {
+        // 缓存命中，从缓存中查询结果
         handleLocallyCachedOutputParameters(ms, key, parameter, boundSql);
       } else {
         // 去数据库中进行查询
@@ -189,10 +195,14 @@ public abstract class BaseExecutor implements Executor {
     if (closed) {
       throw new ExecutorException("Executor was closed.");
     }
+    // 创建延迟加载对象
     DeferredLoad deferredLoad = new DeferredLoad(resultObject, property, key, localCache, configuration, targetType);
+    // 检查是否可以立即加载
     if (deferredLoad.canLoad()) {
+      // 缓存中已有数据，立即加载
       deferredLoad.load();
     } else {
+      // 加入延迟加载队列
       deferredLoads.add(new DeferredLoad(resultObject, property, key, localCache, configuration, targetType));
     }
   }
@@ -266,6 +276,7 @@ public abstract class BaseExecutor implements Executor {
   public void rollback(boolean required) throws SQLException {
     if (!closed) {
       try {
+        // 清理 localCache localOutputParameterCache
         clearLocalCache();
         flushStatements(true);
       } finally {
@@ -370,6 +381,7 @@ public abstract class BaseExecutor implements Executor {
     this.wrapper = wrapper;
   }
 
+  //
   private static class DeferredLoad {
 
     private final MetaObject resultObject;
@@ -393,12 +405,14 @@ public abstract class BaseExecutor implements Executor {
     }
 
     public boolean canLoad() {
+      // 检查缓存中是否已有数据
       return localCache.getObject(key) != null && localCache.getObject(key) != EXECUTION_PLACEHOLDER;
     }
 
     public void load() {
       @SuppressWarnings("unchecked")
       // we suppose we get back a List
+      // 从缓存中获取数据并设置到目标对象
       List<Object> list = (List<Object>) localCache.getObject(key);
       Object value = resultExtractor.extractObjectFromList(list, targetType);
       resultObject.setValue(property, value);

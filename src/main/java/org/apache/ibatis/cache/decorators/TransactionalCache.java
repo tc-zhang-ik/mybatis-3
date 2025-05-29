@@ -38,7 +38,7 @@ import org.apache.ibatis.logging.LogFactory;
 public class TransactionalCache implements Cache {
 
   private static final Log log = LogFactory.getLog(TransactionalCache.class);
-
+  // 实际的缓存实现
   private final Cache delegate;
   private boolean clearOnCommit;
   private final Map<Object, Object> entriesToAddOnCommit;

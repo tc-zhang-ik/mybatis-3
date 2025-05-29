@@ -28,11 +28,15 @@ import org.apache.ibatis.mapping.MappedStatement;
  *
  * @author Kazuki Shimizu
  */
+// 在使用 MyBatis 自动映射（比如配置了 <resultType> 而不是 <resultMap>）时，
+// MyBatis 会尝试把结果集的列映射到 Java 对象的属性。
+// 如果结果集中出现了 Java 对象里没有的字段，就会触发这个配置的判断逻辑。
 public enum AutoMappingUnknownColumnBehavior {
 
   /**
    * Do nothing (Default).
    */
+  // 不处理，忽略 email 列
   NONE {
     @Override
     public void doAction(MappedStatement mappedStatement, String columnName, String property, Type propertyType) {
@@ -44,6 +48,7 @@ public enum AutoMappingUnknownColumnBehavior {
    * Output warning log. Note: The log level of {@code 'org.apache.ibatis.session.AutoMappingUnknownColumnBehavior'}
    * must be set to {@code WARN}.
    */
+  // 打印日志：未映射字段 email
   WARNING {
     @Override
     public void doAction(MappedStatement mappedStatement, String columnName, String property, Type propertyType) {
@@ -54,6 +59,7 @@ public enum AutoMappingUnknownColumnBehavior {
   /**
    * Fail mapping. Note: throw {@link SqlSessionException}.
    */
+  // 抛出异常，终止映射
   FAILING {
     @Override
     public void doAction(MappedStatement mappedStatement, String columnName, String property, Type propertyType) {

@@ -19,6 +19,8 @@ import java.sql.Connection;
 
 /**
  * Creates an {@link SqlSession} out of a connection or a DataSource
+ * <p>
+ * SqlSessionFactory 是 MyBatis 中用于创建 SqlSession（数据库会话）的工厂接口。 它在应用启动时初始化一次，然后在整个应用生命周期中重复使用，创建多个 SqlSession 实例。
  *
  * @author Clinton Begin
  */

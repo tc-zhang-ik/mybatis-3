@@ -111,21 +111,26 @@ public class BatchExecutor extends BaseExecutor {
     return cursor;
   }
 
+  // 负责将之前累积的所有批量操作真正执行到数据库中
   @Override
   public List<BatchResult> doFlushStatements(boolean isRollback) throws SQLException {
     try {
       List<BatchResult> results = new ArrayList<>();
+      // 1. 回滚检查 - 如果是回滚操作，直接返回空结果
       if (isRollback) {
         return Collections.emptyList();
       }
+      // 2. 遍历所有缓存的 Statement 执行批处理
       for (int i = 0, n = statementList.size(); i < n; i++) {
         Statement stmt = statementList.get(i);
         applyTransactionTimeout(stmt);
         BatchResult batchResult = batchResultList.get(i);
         try {
+          // 3. 执行批量更新并获取结果
           batchResult.setUpdateCounts(stmt.executeBatch());
           MappedStatement ms = batchResult.getMappedStatement();
           List<Object> parameterObjects = batchResult.getParameterObjects();
+          // 4. 处理主键生成
           KeyGenerator keyGenerator = ms.getKeyGenerator();
           if (Jdbc3KeyGenerator.class.equals(keyGenerator.getClass())) {
             Jdbc3KeyGenerator jdbc3KeyGenerator = (Jdbc3KeyGenerator) keyGenerator;
@@ -138,6 +143,7 @@ public class BatchExecutor extends BaseExecutor {
           // Close statement to close cursor #1109
           closeStatement(stmt);
         } catch (BatchUpdateException e) {
+          // 5. 批处理异常处理
           StringBuilder message = new StringBuilder();
           message.append(batchResult.getMappedStatement().getId()).append(" (batch index #").append(i + 1).append(")")
               .append(" failed.");
@@ -152,6 +158,7 @@ public class BatchExecutor extends BaseExecutor {
       return results;
     } finally {
       for (Statement stmt : statementList) {
+        // 6. 资源清理
         closeStatement(stmt);
       }
       currentSql = null;

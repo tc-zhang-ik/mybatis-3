@@ -27,6 +27,8 @@ import org.apache.ibatis.session.defaults.DefaultSqlSessionFactory;
 
 /**
  * Builds {@link SqlSession} instances.
+ * <p>
+ * SqlSessionFactoryBuilder 是 MyBatis 提供的一个构建器类（Builder），用于根据配置文件或 Configuration 对象创建 SqlSessionFactory 实例。
  *
  * @author Clinton Begin
  */

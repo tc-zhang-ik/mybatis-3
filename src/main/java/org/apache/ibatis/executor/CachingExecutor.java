@@ -35,10 +35,15 @@ import org.apache.ibatis.transaction.Transaction;
 /**
  * @author Clinton Begin
  * @author Eduardo Macarron
+ *         </p>
+ *         <p>
+ *         CachingExecutor 是 MyBatis 中的一个装饰器模式实现的执行器，主要负责处理二级缓存（Second Level Cache）功能。 它包装了其他类型的执行器，在执行查询操作时提供缓存支持。
+ *         </p>
  */
 public class CachingExecutor implements Executor {
-
+  // 实际执行 SQL 操作的执行器,可以是 SimpleExecutor、ReuseExecutor 或 BatchExecutor
   private final Executor delegate;
+  // TransactionalCacheManager 是二级缓存的事务管理器
   private final TransactionalCacheManager tcm = new TransactionalCacheManager();
 
   public CachingExecutor(Executor delegate) {
@@ -95,20 +100,26 @@ public class CachingExecutor implements Executor {
   @Override
   public <E> List<E> query(MappedStatement ms, Object parameterObject, RowBounds rowBounds, ResultHandler resultHandler,
       CacheKey key, BoundSql boundSql) throws SQLException {
+    // 获取二级缓存
     Cache cache = ms.getCache();
     if (cache != null) {
+      // 检查是否需要刷新缓存
       flushCacheIfRequired(ms);
       if (ms.isUseCache() && resultHandler == null) {
+        // 确保存储过程的输出参数为空
         ensureNoOutParams(ms, boundSql);
         @SuppressWarnings("unchecked")
+        // 缓存未命中，从数据库查询
         List<E> list = (List<E>) tcm.getObject(cache, key);
         if (list == null) {
           list = delegate.query(ms, parameterObject, rowBounds, resultHandler, key, boundSql);
+          // 将查询结果放入缓存
           tcm.putObject(cache, key, list); // issue #578 and #116
         }
         return list;
       }
     }
+    // 没有缓存或不使用缓存，直接委托执行
     return delegate.query(ms, parameterObject, rowBounds, resultHandler, key, boundSql);
   }
 

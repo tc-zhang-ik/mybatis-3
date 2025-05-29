@@ -71,6 +71,9 @@ public class ReuseExecutor extends BaseExecutor {
     return handler.queryCursor(stmt);
   }
 
+  // 关闭所有缓存的 Statement 对象
+  // 清空 Statement 缓存映射
+  // 不执行批处理，所以返回空列表
   @Override
   public List<BatchResult> doFlushStatements(boolean isRollback) {
     for (Statement stmt : statementMap.values()) {

@@ -17,6 +17,8 @@ package org.apache.ibatis.session;
 
 /**
  * @author Clinton Begin
+ *         </p>
+ *         内存分页的方式控制结果集的偏移量和大小。
  */
 public class RowBounds {
 

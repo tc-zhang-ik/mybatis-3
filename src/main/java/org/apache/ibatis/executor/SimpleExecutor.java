@@ -82,6 +82,8 @@ public class SimpleExecutor extends BaseExecutor {
     return cursor;
   }
 
+  // 返回空列表，因为 SimpleExecutor 不缓存语句
+  // 每次执行都是立即执行，没有待刷新的语句
   @Override
   public List<BatchResult> doFlushStatements(boolean isRollback) {
     return Collections.emptyList();

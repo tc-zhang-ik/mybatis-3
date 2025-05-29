@@ -26,6 +26,8 @@ import org.apache.ibatis.executor.BatchResult;
 /**
  * The primary Java interface for working with MyBatis. Through this interface you can execute commands, get mappers and
  * manage transactions.
+ * </p>
+ * SqlSession 是 MyBatis 中最核心的接口之一，代表与数据库的一次会话（session），所有的数据库操作（增删改查、事务管理、映射器获取）都是通过它完成的。
  *
  * @author Clinton Begin
  */
