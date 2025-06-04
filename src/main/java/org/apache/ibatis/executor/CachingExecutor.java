@@ -113,7 +113,7 @@ public class CachingExecutor implements Executor {
         List<E> list = (List<E>) tcm.getObject(cache, key);
         if (list == null) {
           list = delegate.query(ms, parameterObject, rowBounds, resultHandler, key, boundSql);
-          // 将查询结果放入缓存
+          // 将查询结果放入二级缓存
           tcm.putObject(cache, key, list); // issue #578 and #116
         }
         return list;

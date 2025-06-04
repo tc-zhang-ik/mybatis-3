@@ -138,6 +138,7 @@ public class Configuration {
   protected AutoMappingBehavior autoMappingBehavior = AutoMappingBehavior.PARTIAL;
   protected AutoMappingUnknownColumnBehavior autoMappingUnknownColumnBehavior = AutoMappingUnknownColumnBehavior.NONE;
 
+  // mybatis-config.xml中 <properties> 标签中的属性
   protected Properties variables = new Properties();
   // <reflectorFactory>
   protected ReflectorFactory reflectorFactory = new DefaultReflectorFactory();

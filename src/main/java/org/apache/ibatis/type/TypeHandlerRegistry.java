@@ -470,14 +470,17 @@ public final class TypeHandlerRegistry {
   }
 
   private void register(Type[] mappedJavaTypes, JdbcType[] mappedJdbcTypes, Class<?> handlerClass) {
+    // 判断 handlerClass 是否是 TypeHandler 的子类
     if (!TypeHandler.class.isAssignableFrom(handlerClass)) {
       throw new IllegalArgumentException(String.format("'%s' does not implement TypeHandler.", handlerClass.getName()));
     }
     for (Constructor<?> constructor : handlerClass.getConstructors()) {
+      // 寻找只有一个参数的构造器
       if (constructor.getParameterCount() != 1) {
         continue;
       }
       Class<?> argType = constructor.getParameterTypes()[0];
+      // 判断构造器的参数类型是否为 Type 或 Class
       if (Type.class.equals(argType) || Class.class.equals(argType)) {
         for (Type javaType : mappedJavaTypes) {
           smartHandlers.computeIfAbsent(javaType, k -> constructor);
@@ -489,6 +492,10 @@ public final class TypeHandlerRegistry {
     register(mappedJavaTypes, mappedJdbcTypes, getInstance(null, handlerClass));
   }
 
+  /*
+   * @MappedTypes(Gender.class)
+   * @MappedJdbcTypes(JdbcType.VARCHAR)
+   */
   private Type[] mappedJavaTypes(Class<?> clazz) {
     MappedTypes mappedTypesAnno = clazz.getAnnotation(MappedTypes.class);
     if (mappedTypesAnno != null) {
@@ -497,6 +504,10 @@ public final class TypeHandlerRegistry {
     return TypeParameterResolver.resolveClassTypeParams(TypeHandler.class, clazz);
   }
 
+  /*
+   * @MappedTypes(Gender.class)
+   * @MappedJdbcTypes(JdbcType.VARCHAR)
+   */
   private JdbcType[] mappedJdbcTypes(Class<?> clazz) {
     MappedJdbcTypes mappedJdbcTypesAnno = clazz.getAnnotation(MappedJdbcTypes.class);
     if (mappedJdbcTypesAnno != null) {

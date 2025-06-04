@@ -73,6 +73,9 @@ public class XMLStatementBuilder extends BaseBuilder {
     this.mapperClass = mapperClass;
   }
 
+  /*
+   * <select id="selectUser" resultType="user"> SELECT * FROM users WHERE id = #{id} </select>
+   */
   public void parseStatementNode() {
     // context -> <SELECT>等标签
     String id = context.getStringAttribute("id");
@@ -86,7 +89,7 @@ public class XMLStatementBuilder extends BaseBuilder {
     SqlCommandType sqlCommandType = SqlCommandType.valueOf(nodeName.toUpperCase(Locale.ENGLISH));
     boolean isSelect = sqlCommandType == SqlCommandType.SELECT;
     // 3. 解析缓存相关属性
-    // `flushCache`：是否在执行 SQL 前清空缓存，默认值为非查询操作时为 `true`。
+    // `flushCache`：是否在执行 SQL 前清空缓存，默认值为 非查询 操作时为 `true`。
     boolean flushCache = context.getBooleanAttribute("flushCache", !isSelect);
     // `useCache`：- 是否使用二级缓存，默认值为查询操作时为 `true`。
     boolean useCache = context.getBooleanAttribute("useCache", isSelect);

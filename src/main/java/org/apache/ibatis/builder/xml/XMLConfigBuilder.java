@@ -189,6 +189,10 @@ public class XMLConfigBuilder extends BaseBuilder {
     configuration.setLogImpl(logImpl);
   }
 
+  /*
+   * <typeAliases> <typeAlias alias="user" type="com.example.model.User"/> <package name="com.example.model"/>
+   * </typeAliases>
+   */
   private void typeAliasesElement(XNode context) {
     if (context == null) {
       return;
@@ -196,6 +200,7 @@ public class XMLConfigBuilder extends BaseBuilder {
     for (XNode child : context.getChildren()) {
       // package 参数用于指定要扫描的包名，用于扫描指定包名下的所有类，并注册为别名。
       if ("package".equals(child.getName())) {
+        // com.example.User -> User/user 大小写不敏感
         String typeAliasPackage = child.getStringAttribute("name");
         configuration.getTypeAliasRegistry().registerAliases(typeAliasPackage);
       } else {
@@ -216,6 +221,10 @@ public class XMLConfigBuilder extends BaseBuilder {
     }
   }
 
+  /*
+   * <plugins> <plugin interceptor="com.example.interceptor.MyBatisPlugin"> <property name="someProperty"
+   * value="someValue"/> </plugin> </plugins>
+   */
   private void pluginsElement(XNode context) throws Exception {
     if (context != null) {
       for (XNode child : context.getChildren()) {
@@ -233,6 +242,10 @@ public class XMLConfigBuilder extends BaseBuilder {
     }
   }
 
+  /*
+   * <objectFactory type="com.example.objectFactory.CustomObjectFactory"> <property name="customProperty"
+   * value="customValue"/> </objectFactory>
+   */
   private void objectFactoryElement(XNode context) throws Exception {
     if (context != null) {
       String type = context.getStringAttribute("type");
@@ -251,6 +264,7 @@ public class XMLConfigBuilder extends BaseBuilder {
     }
   }
 
+  // <reflectorFactory type="com.example.reflectorFactory.CustomReflectorFactory"/>
   private void reflectorFactoryElement(XNode context) throws Exception {
     if (context != null) {
       String type = context.getStringAttribute("type");
@@ -265,7 +279,7 @@ public class XMLConfigBuilder extends BaseBuilder {
     }
     // 解析 <properties> 节点，将属性存储在 Properties 对象中
     Properties defaults = context.getChildrenAsProperties();
-    // resource 属性用于引入外部属性文件
+    // resource 属性用于引入外部属性文件，比如 xxx.properties
     String resource = context.getStringAttribute("resource");
     // url 属性用于引入外部属性文件
     String url = context.getStringAttribute("url");
@@ -324,6 +338,10 @@ public class XMLConfigBuilder extends BaseBuilder {
     configuration.setNullableOnForEach(booleanValueOf(props.getProperty("nullableOnForEach"), false));
   }
 
+  /*
+   * <environments default="development"> <environment id="development"> <transactionManager type="JDBC"/> <dataSource
+   * type="UNPOOLED"></dataSource> </environment> </environments>
+   */
   private void environmentsElement(XNode context) throws Exception {
     if (context == null) {
       return;
@@ -387,6 +405,11 @@ public class XMLConfigBuilder extends BaseBuilder {
     throw new BuilderException("Environment declaration requires a DataSourceFactory.");
   }
 
+  /*
+   * <typeHandlers> <!-- 方法 1：通过类全名注册 --> <typeHandler handler="com.example.handler.GenderTypeHandler" /> <!-- 方法 2：指定
+   * Java 类型和 JDBC 类型（可选） --> <typeHandler javaType="com.example.enums.Gender" jdbcType="VARCHAR"
+   * handler="com.example.handler.GenderTypeHandler"/> <package name="com.example.handler"/> </typeHandlers>
+   */
   private void typeHandlersElement(XNode context) {
     if (context == null) {
       return;
@@ -415,6 +438,10 @@ public class XMLConfigBuilder extends BaseBuilder {
     }
   }
 
+  /*
+   * <mappers> <mapper resource="com/example/mapper/UserMapper.xml"/> <!-- <package name = "com.example.mapper"/>-->
+   * </mappers>
+   */
   private void mappersElement(XNode context) throws Exception {
     if (context == null) {
       return;

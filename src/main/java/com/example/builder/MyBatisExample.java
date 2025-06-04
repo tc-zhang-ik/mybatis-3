@@ -44,7 +44,10 @@ public class MyBatisExample {
       UserMapper mapper = session.getMapper(UserMapper.class);
 
       User user2 = mapper.selectUser(1);
-      log.debug("User: {} / {}/{}", user2.getId(), user2.getName(), user2.getCreateTime());
+      // 使用 sqlId 方式
+      User user3 = session.selectOne("com.example.mapper.UserMapper.selectUser", 1);
+      log.debug("User: {}", user3);
+      log.debug("User: {}", user2);
     }
   }
 }

@@ -168,6 +168,7 @@ public class XMLMapperBuilder extends BaseBuilder {
 
   private void cacheRefElement(XNode context) {
     if (context != null) {
+      // 添加 cache-ref
       configuration.addCacheRef(builderAssistant.getCurrentNamespace(), context.getStringAttribute("namespace"));
       CacheRefResolver cacheRefResolver = new CacheRefResolver(builderAssistant,
           context.getStringAttribute("namespace"));
@@ -179,13 +180,16 @@ public class XMLMapperBuilder extends BaseBuilder {
     }
   }
 
+  /*
+   * <!-- 启用并配置二级缓存 --> <cache eviction="LRU" flushInterval="60000" size="512" readOnly="false"/>
+   */
   private void cacheElement(XNode context) {
     if (context != null) {
       // 缓存实现类，一般使用默认 PERPETUAL 即可
       String type = context.getStringAttribute("type", "PERPETUAL");
       // 缓存实现类 PerpetualCache.class
       Class<? extends Cache> typeClass = typeAliasRegistry.resolveAlias(type);
-      // 缓存淘汰策略：LRU、FIFO、SOFT、WEAK
+      // 缓存淘汰策略：LRU、FIFO、SOFT、WEAK，默认 LRU 最近最少使用（Least Recently Used）
       String eviction = context.getStringAttribute("eviction", "LRU");
       // 缓存淘汰策略实现类 LruCache.class
       Class<? extends Cache> evictionClass = typeAliasRegistry.resolveAlias(eviction);
@@ -198,13 +202,20 @@ public class XMLMapperBuilder extends BaseBuilder {
       // 控制缓存击穿时的并发行为
       boolean blocking = context.getBooleanAttribute("blocking", false);
       Properties props = context.getChildrenAsProperties();
+      // 将 Cache 添加到 configuration 中
       builderAssistant.useNewCache(typeClass, evictionClass, flushInterval, size, readWrite, blocking, props);
     }
   }
 
+  /*
+   * <parameterMap id="userParamMap" type="com.example.User"> <parameter property="id" javaType="int"
+   * jdbcType="INTEGER"/> <parameter property="username" javaType="String" jdbcType="VARCHAR"/> </parameterMap>
+   */
   private void parameterMapElement(List<XNode> list) {
     for (XNode parameterMapNode : list) {
+      // userParamMap
       String id = parameterMapNode.getStringAttribute("id");
+      // com.example.User
       String type = parameterMapNode.getStringAttribute("type");
       Class<?> parameterClass = resolveClass(type);
       List<XNode> parameterNodes = parameterMapNode.evalNodes("parameter");
@@ -221,14 +232,22 @@ public class XMLMapperBuilder extends BaseBuilder {
         Class<?> javaTypeClass = resolveClass(javaType);
         JdbcType jdbcTypeEnum = resolveJdbcType(jdbcType);
         Class<? extends TypeHandler<?>> typeHandlerClass = resolveClass(typeHandler);
+        // 创建 ParameterMapping
         ParameterMapping parameterMapping = builderAssistant.buildParameterMapping(parameterClass, property,
             javaTypeClass, jdbcTypeEnum, resultMap, modeEnum, typeHandlerClass, numericScale);
         parameterMappings.add(parameterMapping);
       }
+      // 将 ParameterMapping 添加到 configuration 中
       builderAssistant.addParameterMap(id, parameterClass, parameterMappings);
     }
   }
 
+  /*
+   * <resultMap id="baseUserMap" type="User"> <id property="id" column="id"/> <result property="username"
+   * column="username"/> </resultMap> <resultMap id="userWithDeptMap" type="User" extends="baseUserMap"> <association
+   * property="department" javaType="Department"> <id property="id" column="dept_id"/> <result property="name"
+   * column="dept_name"/> </association> </resultMap>
+   */
   private void resultMapElements(List<XNode> list) {
     for (XNode resultMapNode : list) {
       try {

@@ -152,7 +152,9 @@ public class TypeAliasRegistry {
   }
 
   public void registerAlias(Class<?> type) {
+    // 类的简单名称（不包括包名）
     String alias = type.getSimpleName();
+    // @Alias("user")
     Alias aliasAnnotation = type.getAnnotation(Alias.class);
     if (aliasAnnotation != null) {
       alias = aliasAnnotation.value();

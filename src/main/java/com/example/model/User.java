@@ -30,4 +30,9 @@ public class User {
   public Date getCreateTime() {
     return createTime;
   }
+
+  @Override
+  public String toString() {
+    return "User{" + "id=" + id + ", name='" + name + '\'' + ", createTime=" + createTime + '}';
+  }
 }
